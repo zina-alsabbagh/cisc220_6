@@ -1,3 +1,6 @@
+// Zina Al-Sabbagh 10161380
+// Rita Alsattah 10154610
+
 #include <string.h>
 #include <unistd.h>
 #include <pthread.h>
