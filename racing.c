@@ -9,7 +9,7 @@
 
 int players[5] = {0,0,0,0,0};
 
-void drawLane(int play) {
+void begin(int play) {
 	int pass;
 	int space;
 	for (pass=0;pass<players[play-1];pass++) {
@@ -22,30 +22,30 @@ void drawLane(int play) {
 	printf("# Lane %d #\n", play);
 } 
 
-int noWinner() {
+int noWin() {
 	int i;
 	for(i=0;i<5;i++) {
-		if (players[i] == 40) {
+		if (players[i]==40) {
 			return 0;
 		}
 	}
 	return 1;	
 }
 
-void* drawRace() { 
-	while (noWinner()) {
+void* win() { 
+	while (noWin()) {
 		int l;
 		system("clear");
 		printf("Welcome to CISC220 Racing Arena. Hit Enter to move forward!\n");
 		for(l=1;l<6;l++) {
-			drawLane(l);
+			begin(l);
 		}
 		usleep(20*1000);
 	}
 	int i;
 	for(i=0;i<5;i++) {
 		int lane = i+1;
-		if ( (players[i] == 40) && (lane == 1) ) {
+		if ((players[i] == 40) && (lane == 1)) {
 			printf("You win the race! \n");
 		}
 		else if (players[i] == 40) {
@@ -55,9 +55,8 @@ void* drawRace() {
 	pthread_exit(NULL);
 }
 
-
-void* userCar(void *string) {
-	while (noWinner() ) {
+void* player(void *string) {
+	while (noWin()) {
 		char c = getchar();
 		if ( c == '\n') {
 			players[0]+= 1;
@@ -66,31 +65,30 @@ void* userCar(void *string) {
 	pthread_exit(NULL);
 }
 
-void* compCar(void *string) {
-	while (noWinner()){
+void* computer(void *string) {
+	while (noWin()){
 		long lane = (long)string;
-		int s = rand() % 100;
-		int milli = s * 10000;
-		players[lane]+= 1;	
+		int s=rand()%100;
+		int milli=s*10000;
+		players[lane]+=1;	
 		usleep(milli);
 	}
 	pthread_exit(NULL);
 }
 
-
 int main() {
 	pthread_t threads[6];
-	int rc;
+	int n;
 	long lane;
-	rc = pthread_create(threads+0,NULL,drawRace,(void *) 0);
+	n = pthread_create(threads+0,NULL,win,(void *) 0);
 	for(lane=1;lane<=5;lane++) {
 		if(lane == 1) {
-			rc=pthread_create(threads+lane,NULL,userCar,(void *) lane);
+			n=pthread_create(threads+lane, NULL, player,(void *) lane);
 		}
 		else {
-			rc=pthread_create(threads+lane,NULL,compCar,(void *) lane);
+			n=pthread_create(threads+lane, NULL, computer, (void *) lane);
 		}
-		if (rc) {
+		if (n) {
 			printf("Error");
 			exit(-1);
 		}
